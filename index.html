@@ -1,12 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toy Shop</title>
+  <meta charset="UTF-8" />
+  <title>ToyShop</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #e6f2ed;
+      color: #333;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #05552e;
+    }
+
+    .nav-btns {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    section {
+      max-width: 900px;
+      margin: auto;
+      display: none;
+    }
+
+    .visible {
+      display: block;
+    }
+
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    form input, form button {
+      padding: 10px;
+      flex: 1 1 180px;
+      min-width: 160px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    form button {
+      background-color: #02874a;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    form button:hover {
+      background-color: #02663a;
+    }
+
+    #toy-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .toy-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .toy-card img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .toy-card h3 {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .toy-card p {
+      font-size: 14px;
+      margin: 4px 0;
+    }
+
+    .toy-card button {
+      padding: 6px 12px;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .toy-card button:hover {
+      background: #005fa3;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to the Toy Shop!</h1>
-    <p>This is the home page served by Express.</p>
+
+  <h1>🧸 ToyShop</h1>
+
+  <div class="nav-btns">
+    <button onclick="show('login')">Login</button>
+    <button onclick="show('register')">Register</button>
+  </div>
+
+  <!-- Login -->
+  <section id="login" class="visible">
+    <h2>User Login</h2>
+    <form id="loginForm">
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <button>Login</button>
+    </form>
+  </section>
+
+  <!-- Register -->
+  <section id="register">
+    <h2>Register User</h2>
+    <form id="registerForm">
+      <input name="name" placeholder="Name" required>
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <input name="address" placeholder="Address">
+      <input name="phone" placeholder="Phone" type="number">
+      <button>Register</button>
+    </form>
+  </section>
+
+  <!-- Shop Section -->
+  <section id="shop">
+    <h2>Toy Collection</h2>
+    <div id="toy-list"></div>
+    <h3>Add New Toy</h3>
+    <form id="toyForm">
+      <input name="name" placeholder="Toy Name" required>
+      <input name="categoryId" placeholder="Category" required>
+      <input name="price" type="number" placeholder="Price" required>
+      <input name="image" placeholder="Image URL" required>
+      <button>Add Toy</button>
+    </form>
+  </section>
+
+  <script>
+    const show = (id) => {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('visible'));
+      document.getElementById(id).classList.add('visible');
+    };
+
+    const renderToys = (toys) => {
+      const list = document.getElementById('toy-list');
+      list.innerHTML = '';
+      toys.forEach(toy => {
+        list.innerHTML += `
+          <div class="toy-card">
+            <img src="${toy.image}" alt="${toy.name}">
+            <h3>${toy.name}</h3>
+            <p>Category: ${toy.categoryId}</p>
+            <p>Price: ₹${toy.price}</p>
+            <button onclick='alert("Added to cart!")'>Add to Cart</button>
+          </div>
+        `;
+      });
+    };
+
+    // Toy Fetch
+    const loadToys = () => {
+      fetch('http://localhost:3000/api/toys')
+        .then(res => res.json())
+        .then(data => renderToys(data));
+    };
+
+    // Add Toy
+    document.getElementById('toyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const toy = Object.fromEntries(f.entries());
+      toy.price = parseFloat(toy.price);
+      const res = await fetch('http://localhost:3000/api/toys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toy)
+      });
+      if (res.ok) {
+        alert('✅ Toy added!');
+        e.target.reset();
+        loadToys();
+      } else alert('❌ Failed to add toy');
+    });
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const user = Object.fromEntries(f.entries());
+      const res = await fetch('http://localhost:3000/api/customers', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      });
+      if (res.ok) {
+        alert('✅ Registered!');
+        show('login');
+        e.target.reset();
+      } else alert('❌ Registration failed');
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const creds = Object.fromEntries(f.entries());
+      const res = await fetch('http://localhost:3000/api/customers/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(creds)
+      });
+      if (res.ok) {
+        const user = await res.json();
+        alert(`🎉 Welcome, ${user.name}`);
+        show('shop');
+        loadToys();
+      } else alert('❌ Login failed');
+    });
+  </script>
 </body>
-</html> 
+</html>
+
