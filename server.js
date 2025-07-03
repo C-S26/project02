@@ -6,10 +6,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/toy_Store', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('✅ MongoDB connected');
+  } catch (error) {
+    console.error('❌ MongoDB connection failed', error);
+    process.exit(1);
+  }
+};
 
 // Schemas
 const Toy = mongoose.model('Toy', new mongoose.Schema({
@@ -45,4 +53,8 @@ app.post('/api/customers/login', async (req, res) => {
   else res.status(401).json({ error: 'Invalid credentials' });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+connectDB();
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});
