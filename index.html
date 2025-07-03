@@ -181,7 +181,7 @@
 
     // Toy Fetch
     const loadToys = () => {
-      fetch('http://localhost:3000/api/toys')
+      fetch('https://project02-z5bv.onrender.com/api/toys')
         .then(res => res.json())
         .then(data => renderToys(data));
     };
@@ -192,7 +192,7 @@
       const f = new FormData(e.target);
       const toy = Object.fromEntries(f.entries());
       toy.price = parseFloat(toy.price);
-      const res = await fetch('http://localhost:3000/api/toys', {
+      const res = await fetch('https://project02-z5bv.onrender.com/api/toys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(toy)
@@ -209,7 +209,7 @@
       e.preventDefault();
       const f = new FormData(e.target);
       const user = Object.fromEntries(f.entries());
-      const res = await fetch('http://localhost:3000/api/customers', {
+      const res = await fetch('https://project02-z5bv.onrender.com/api/customers', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
       });
@@ -225,7 +225,7 @@
       e.preventDefault();
       const f = new FormData(e.target);
       const creds = Object.fromEntries(f.entries());
-      const res = await fetch('http://localhost:3000/api/customers/login', {
+      const res = await fetch('https://project02-z5bv.onrender.com/api/customers/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds)
       });
